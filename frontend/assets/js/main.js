@@ -3,10 +3,11 @@
 	//ink manager object
 	var inkManager = (function(){
 		var isStroking = false
-		var inkStack = []; //store a whole picture
+		var inkStack = []; //store the history of the picture
 		var strokeStack = []; //store the strokes in the same picture
-		var stroke = [];
-		var inkStackIdx = 0;
+		var stroke = []; //the current drawing stroke
+		var lastInk = 0;
+		var lastStroke = 0;
 		//basic point class
 		function Point(x, y)
 		{
@@ -14,38 +15,54 @@
 			this.y = y;
 		}
 		//begin a stroke.
-		function beginStroke(eventX, eventY)
+		this.beginStroke = function(eventX, eventY)
 		{
-			
+			isStroking = true;
+			//make an InkPoint
+			var point = new Point(eventX, eventY);
+			//add it to the stroke array
+			strokeStack.push(point);
 		}
-		function addInkPoint(eventX, eventY)
+		this.addInkPoint = function(eventX, eventY)
 		{
 			if (isStroking)
 			{
 				//make an InkPoint
+				var point = new Point(eventX, eventY);
 				//add it to the stroke array
+				strokeStack.push(point);
 			}
 		}
-		function endStroke(eventX, eventY)
+		this.endStroke = function(eventX, eventY)
 		{
 			isStroking = false;
 			//TODO: stack the stroke
 			strokeStack.push(stroke);
 			stroke = [];
 		}
-		//draw all the points in the Ink
-		function drawInk(ctx)
+		
+		//draw all the stroke in the strokeStack
+		this.draw = function(ctx)
 		{
 			var index;
-			for(index = 0; index < inkStack.length; ++index)
+			//lastStroke is the lastStroke to show
+			for(index = 0; index < lastStroke; ++index)
 			{
-				inkStack[index].drawInk
+				drawStroke(index, ctx);
 			}
 		}
 		
-		function draw(ctx)
+		function drawStroke(strokeIndex, ctx)
 		{
-			drawInk(ctx);
+			//draw the given stroke
+			var stroke = strokeStack[strokeIndex];
+			ctx.moveTo(stroke[0].x, stroke[0].y);
+			var index;
+			for (index = 1; index < stroke.length; ++index)
+			{
+				ctx.lineTo(stroke[index].x, stroke[0].y);
+			}
+			ctx.stroke();
 		}	
 	})();
 	//load picture function
@@ -90,4 +107,15 @@
 		
 		//TODO: redrawStrokes
 	}
+	
+	$('canvas').addLayer({
+		name: 'mylayer',
+	});
+	$('canvas').getLayer('mylayer').drawLine(
+		{
+			fillStyle: "#000",
+			x1: 0, y1: 0,
+			x2: 100, y2: 100,
+		})
+	$('canvas').drawLayers();
 })()
