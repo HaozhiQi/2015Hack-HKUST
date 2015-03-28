@@ -6,4 +6,13 @@
 	
 	div#base-wrapper {
 		box-shadow: 0 0 5px #888888;
+		width: 1280px;
+		padding-left: 0;
+		padding-right: 0;
+		margin-left: auto;
+		margin-right: auto;
+		
+	}
+	
+	div#canvas-wrapper {
 	}
