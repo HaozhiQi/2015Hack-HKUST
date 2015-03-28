@@ -1,0 +1,9 @@
+/*for debug only*/
+	div {
+		border-style: dashed;
+		border-width: 1px;
+	}
+	
+	div#base-wrapper {
+		box-shadow: 0 0 5px #888888;
+	}
