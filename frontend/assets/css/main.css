@@ -15,4 +15,24 @@
 	
 	div#canvas-wrapper {
 		box-shadow: 0 0 5px #888888;
+		position: relative;
+		width: 1280px;
+		height: 720px;
 	}
+	
+	canvas {
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	canvas#canvas0{
+		z-index: 0;
+	}
+	canvas#canvas1{
+		z-index: 1;
+	}
+	canvas#canvas2{
+		z-index: -1;
+	}
+	
+	
