@@ -1,5 +1,5 @@
 <?php
-$db = new SQLite3('my_database.db') or die('unable to connect to database');
+	$db = new SQLite3('my_database.db') or die('unable to connect to database');
 	$db->busyTimeout(5000);
 	//drop previous tables
 	$db->exec("DROP TABLE IF EXISTS images");
@@ -23,4 +23,4 @@ $db = new SQLite3('my_database.db') or die('unable to connect to database');
 	
 	
 	$db->close();
-	?>
+?>
