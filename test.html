@@ -1,0 +1,15 @@
+<html>
+<head>
+</head>
+<body>
+<div id="my-div" style="width: 800px; height: 600px;"></div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script>
+	$("#my-div").on("touchstart touchmove touchend",function(ev){
+		ev.preventDefault();
+		console.log(ev);
+	});
+</script>
+</body>
+</html>
