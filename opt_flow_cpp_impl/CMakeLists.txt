@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( opt_flow )
+find_package( OpenCV REQUIRED )
+add_executable( opt_flow opt_flow.cc)
+target_link_libraries( opt_flow ${OpenCV_LIBS} )

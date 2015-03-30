@@ -2,6 +2,10 @@ from math import sqrt
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+from subprocess import call
+from PIL import Image
+from PIL import ImageEnhance
+
 
 help_message = '''
 USAGE: opt_flow.py [<video_source>]
@@ -75,32 +79,18 @@ def show_boundary(img, flow):
         # if left < right:
         #     cv2.circle(img, (right, r), 1, [225, 0, 0])
 
-# def find_bound(row_m):
-#     t = 2
-#     cons = 10
-#     c = 0
-#     for i in (0, len(row_m)):
-#         if row_m[r] > t:
-#             c += 1
-#         else:
-#             c = 0
+# cap = cv2.VideoCapture('train_data/seq4.MOV')
+# ret, c0 = cap.read()
+# # c0 = cv2.resize(c0 (0,0), fx=0.5, fy=0.5)
+# g0 = cv2.cvtColor(c0, cv2.COLOR_BGR2GRAY)
+# ret, c1 = cap.read()
+# # c1 = cv2.resize(c1 (0,0), fx=0.5, fy=0.5)
+# g1 = cv2.cvtColor(c1, cv2.COLOR_BGR2GRAY)
 
-
-
-
-
-cap = cv2.VideoCapture('train_data/seq4.MOV')
-ret, c0 = cap.read()
-# c0 = cv2.resize(c0 (0,0), fx=0.5, fy=0.5)
-g0 = cv2.cvtColor(c0, cv2.COLOR_BGR2GRAY)
-ret, c1 = cap.read()
-# c1 = cv2.resize(c1 (0,0), fx=0.5, fy=0.5)
-g1 = cv2.cvtColor(c1, cv2.COLOR_BGR2GRAY)
-
-flow = cv2.calcOpticalFlowFarneback(g0, g1, 0.5, 3, 15, 3, 5, 1.2, 0)
-# show_boundary(c0, flow)
-# cv2.imshow('c0', c0)
-
+# flow = cv2.calcOpticalFlowFarneback(g0, g1, 0.5, 3, 15, 3, 5, 1.2, 0)
+# draw_flow(g0, flow)
+# # show_boundary(c0, flow)
+# cv2.imshow('c0', g0)
 
 """ 
     sum over the vertor length 
@@ -162,24 +152,39 @@ def paint_block(img, r0, c0, r1, c1, prev = None):
             else:
                 img[r][c] = prev[r][c]
 
-def crop_2(img, prev, flow, alpha = 0.2, r_num_cells = 18, c_num_cells = 32):
+def crop_2(curt, prev, flow, alpha = 0.2, r_num_cells = 18, c_num_cells = 32):
     h, w = flow.shape[:2]
     r_step = h / r_num_cells
     c_step = w / c_num_cells
-    cell_sums = [[0 for x in range(c_num_cells)] for x in range(r_num_cells)]
+    cell_sums = [[0 for c in range(c_num_cells)] for r in range(r_num_cells)]
     total_sum = 0
     for r in xrange(h):
         for c in xrange(w):
             m = get_module(flow[r][c])
             cell_sums[r/r_step][c/c_step] += m
             total_sum += m
+    # print total_sum
     mean_sum = total_sum / (r_num_cells * c_num_cells) * 4
-    for rk in xrange(0, r_num_cells-1):
-        for ck in xrange(0, c_num_cells-1):
+    painted = [[False for ck in xrange(c_num_cells)] for rk in xrange(r_num_cells)]
+    for rk in xrange(r_num_cells-1):
+        for ck in xrange(c_num_cells-1):
             cell4sum = cell_sums[rk][ck] + cell_sums[rk][ck+1] + cell_sums[rk+1][ck] + cell_sums[rk+1][ck+1]
-            if cell4sum > 1.4 * mean_sum:
-                paint_block(img, rk*r_step, ck*c_step, (rk+2)*r_step, (ck+2)*c_step, prev)
+            if cell4sum > alpha * mean_sum and painted[rk][ck] == False:
+                for rkk in xrange(rk, r_num_cells-1, 1):
+                    paint_block(curt, rkk*r_step, ck*c_step, (rkk+2)*r_step, (ck+2)*c_step, prev)
+                    painted[rkk][ck] = True
 
+def image_enhance(cv_array):
+    pil_array = cv2.cvtColor(cv_array, cv2.COLOR_BGR2RGB)
+    pil_im = Image.fromarray(pil_array)
+    pil_im = ImageEnhance.Brightness(pil_im).enhance(3.5)
+    pil_im = ImageEnhance.Contrast(pil_im).enhance(2)
+    pil_im = ImageEnhance.Sharpness(pil_im).enhance(0.5)
+    enhanced_pil_array = np.array(pil_im)
+    return cv2.cvtColor(enhanced_pil_array, cv2.COLOR_RGB2BGR)
+
+def upload_pic(pic_name, url = 'http://ddwrt.jowos.moe:44445/submit.php'):
+    call(['curl', '--form', 'fileupload=@%s' % pic_name, url])
 
 if __name__ == '__main__':
     import sys
@@ -190,9 +195,15 @@ if __name__ == '__main__':
     cam = cv2.VideoCapture(fn)
     
     ret, curt = cam.read()
+    # if not ret:
+    #     print "cannot read video"
+
     curt_gray = cv2.cvtColor(curt, cv2.COLOR_BGR2GRAY)
     h, w = curt.shape[:2]
     prev = [[[255, 255, 255] for c in xrange(w)] for r in xrange(h)]
+
+    fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
+    out = cv2.VideoWriter('out.mp4', fourcc, 2.0, (w,h))
 
     # show_hsv = False
     # show_glitch = False
@@ -207,22 +218,24 @@ if __name__ == '__main__':
 
         # cv2.imshow('flow', draw_flow(gray, flow))
         crop_2(curt, prev, flow)
+        
+        # enhanced_curt = image_enhance(curt)
         print ii
         ii += 1
+        cv2.destroyAllWindows()
         cv2.imshow('curt', curt)
+        pic_name = 'temp_pic/image_%d.jpg' % ii
+        cv2.imwrite(pic_name, curt)
+        upload_pic(pic_name)
+        out.write(curt)
+        # cv2.imshow('curt', enhanced_curt)
+        # out.write(enhanced_curt)
         prev = curt
         curt = next
         curt_gray = next_gray
-
-        # ch = 0xFF & cv2.waitKey(5)
-        # if ch == 27:
-        #     break
-        # if ch == ord('1'):
-        #     show_hsv = not show_hsv
-        #     print 'HSV flow visualization is', ['off', 'on'][show_hsv]
-        # if ch == ord('2'):
-        #     show_glitch = not show_glitch
-        #     if show_glitch:
-        #         cur_glitch = img.copy()
-        #     print 'glitch is', ['off', 'on'][show_glitch]
+    cam.release()
+    out.release()
     cv2.destroyAllWindows()
+
+
+# resized_image = cv2.resize(image, (1280, 720))
