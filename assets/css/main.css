@@ -1,0 +1,131 @@
+/*for debug only*/
+/* 	div {
+		border-style: dashed;
+		border-width: 1px;
+	} */
+	
+html,
+body {
+	height: 100%;
+	background-color: #fff;
+}
+body {
+	color: #000;
+	text-align: center;
+}
+
+div#site-wrapper {
+	display: table;
+	width: 100%;
+	height: 100%;
+	box-shadow: inset 0 0 10px rgba(0,0,0,.5);
+}
+
+div#sider-wrapper{
+	width: 400px;
+	height: 100%;
+	box-shadow:inset -10px 1px 10px -10px rgba(0,0,0,0.75)
+}
+
+ul#user-list {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+li.user-tab,{
+	width: 400px;
+	height: 150px;
+	border-style: solid;
+	border-width: 0;
+	border-bottom-width: 1px;
+	display: block;
+}
+
+a.user-tab{
+	width: 400px;
+	height: 150px;
+	display: block;
+}
+
+div.avatar-wrapper {
+	width: 110px;
+	height: 110px;
+	float: left;
+	border-radius: 75px;
+	background-color: #DDD;
+	margin: 20px;
+}
+
+div.user-info-wrapper {
+	float: left;
+	width: 250px;
+	height: 150px;
+	display: table;
+}
+
+div.user-info-wrapper-inner{
+	display: table-cell;
+	vertical-align: middle;
+	font-size: 3em;
+}
+
+div#site-wrapper-inner{
+	display: table-cell;
+	vertical-align: middle;
+}
+
+div#header-wrapper {
+	position: fixed;
+	top: 0;
+}
+
+.inner {
+	padding: 30px;
+}
+
+div#main-wrapper, div#header-wrapper, div#footer-wrapper {
+	width: 1280px;
+}
+
+div#main-wrapper {
+	
+	margin-right: auto;
+	margin-left: auto;
+}
+
+div#footer-wrapper {
+	position: fixed;
+	bottom: 0;
+}
+
+div#canvas-wrapper {
+	box-shadow: 0 0 5px #888888;
+	position: relative;
+	width: 1280px;
+	height: 720px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+canvas {
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+canvas#canvas0{
+	z-index: 0;
+}
+canvas#canvas1{
+	z-index: 1;
+}
+canvas#canvas2{
+	display: none;
+}
+
+.active{
+	background-color: #B4DCFF;
+}
+	
+	
+	
